@@ -3,9 +3,14 @@ from glob import glob
 import multiprocessing as mp
 import scipy.stats
 import numpy as np
+import os.path
 
 
 def fix_pool_results(results):
+    """
+    Because of pickle issues, our results are returned as raw tuples. This
+    turns everything back into the nametuples that radon provides.
+    """
     fixed = []
     for (total, functions) in results:
         function_results = []
@@ -19,31 +24,38 @@ def fix_pool_results(results):
     return fixed
 
 
-if __name__ == "__main__":
-    names = glob("/home/rwb/Dropbox/sympy/sympy/**/*.py", recursive=True)
-
-    def func(name):
-        with open(name) as f:
-            # Return a tuple because pickle is fucking stupid.
-            res = h_visit(f.read())
-            total = tuple(res.total)
-            functions = [(name, tuple(report)) for (name, report) in res.functions]
-
-            return (total, functions)
-
-    with mp.Pool() as pool:
-        results = pool.map(func, names)
-
+def get_function_length_pairs(results):
     def flatten(list_of_lists):
         return [x for l in list_of_lists for x in l]
 
-    results = fix_pool_results(results)
     function_results = flatten([res.functions for res in results if res.functions])
-    function_results = [pair[-1] for pair in function_results]
+    function_results = [result for name, result in function_results]
 
     pairs = [(res.length, res.calculated_length) for res in function_results]
     ns, n_hats = zip(*pairs)
 
+    return (ns, n_hats)
+
     slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(ns, n_hats)
 
     line = np.poly1d([slope, intercept])
+
+
+def pickle_func(name):
+    with open(name) as f:
+        # Return a tuple because pickle is fucking stupid.
+        res = h_visit(f.read())
+        total = tuple(res.total)
+        functions = [(name, tuple(report)) for (name, report) in res.functions]
+
+        return (total, functions)
+
+
+def get_dir_halstead(path):
+    search_path = os.path.join(path, "**/*.py")
+    names = glob(search_path, recursive=True)
+
+    with mp.Pool() as pool:
+        results = pool.map(pickle_func, names)
+
+    return fix_pool_results(results)
