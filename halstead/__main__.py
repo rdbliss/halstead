@@ -54,13 +54,55 @@ def pull_repo(git_url, clone_path):
                       "is a git repository distinct from the given url")
 
 
+def handle_urls(urls):
+    """TODO: Docstring for handle_url.
+
+    :git_url: TODO
+    :returns: TODO
+
+    """
+    import giturlparse
+    import re
+
+    git_urls = []
+
+    github_regex = re.compile("[^/]*/[^/]*")
+
+    for url in urls:
+        git_url = giturlparse.parse(url)
+        if git_url.valid:
+            git_urls.append(git_url)
+            continue
+
+        # The git URL is invalid.
+        # Is it in the GitHub shorthand form 'owner/repo'?
+        if not github_regex.match(url):
+            # Nope.
+            print("Ign: Invalid git url '{}'".format(url) +
+                  ", also not in GitHub shortform 'owner/repo'")
+            continue
+
+        # Yes, so let's manually build the url.
+        new_url = "https://github.com/" + url
+        git_url = giturlparse.parse(new_url)
+
+        if git_url.valid:
+            git_urls.append(git_url)
+            continue
+
+        # Well, we tried.
+        print("Ign: Could not git url '{}'".format(url) +
+              " (it looks like GitHub shortform, but isn't valid)")
+
+    return git_urls
+
+
 def parse_args():
     """TODO: Docstring for parse_args.
     :returns: TODO
 
     """
     import argparse
-    import giturlparse
 
     parser = argparse.ArgumentParser(prog="halstead", description=DESCRIPTION)
     parser.add_argument("repos", type=str, nargs="+", help=REPO_HELP)
@@ -71,16 +113,10 @@ def parse_args():
 
     args = parser.parse_args()
 
-    git_urls = []
+    git_urls = handle_urls(args.repos)
 
-    for url in args.repos:
-        git_url = giturlparse.parse(url)
-
-        if not git_url.valid:
-            print("Ign: Invalid git url '{}'".format(url))
-            continue
-
-        git_urls.append(git_url)
+    if not git_urls:
+        exit("Exit: No valid git urls found")
 
     return (git_urls, args)
 
