@@ -1,8 +1,6 @@
 from radon.metrics import h_visit, HalsteadReport, Halstead
 from glob import glob
 import multiprocessing as mp
-import scipy.stats
-import numpy as np
 import os.path
 
 
@@ -35,10 +33,6 @@ def get_function_length_pairs(results):
     ns, n_hats = zip(*pairs)
 
     return (ns, n_hats)
-
-    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(ns, n_hats)
-
-    line = np.poly1d([slope, intercept])
 
 
 def pickle_func(name):

@@ -1,8 +1,10 @@
 from git import Repo
 from git.exc import GitCommandError
 from .process import get_dir_halstead
+from .output import plot_function_length_pairs
 import giturlparse
 import argparse
+import matplotlib.pyplot as plt
 
 
 def parse_args():
@@ -38,7 +40,12 @@ def main():
         raise e
 
     results = get_dir_halstead(clone_path)
-    print(results)
+
+    plt.style.use("ggplot")
+    plot_function_length_pairs(results)
+
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
