@@ -22,6 +22,36 @@ REPO_HELP = "Valid path to git repo or user/project shorthand for GitHub repo."
 CLONE_PATH_HELP = "Directory for cloned repo."
 
 
+def pull_repo(git_url, clone_path):
+    import git
+    print("cloning '{}' into '{}'".format(git_url.url, clone_path))
+
+    try:
+        repo = git.Repo.clone_from(git_url.urls["https"], clone_path)
+    except git.exc.GitCommandError as e:
+        if e.status != 128:
+            raise e
+
+        # The directory already exists.
+        # Is it a git repository?
+        try:
+            repo = git.Repo(clone_path)
+        except git.InvalidGitRepositoryError:
+            raise IOError("clone-path `{}`".format(clone_path) +
+                       " is non-empty and not a git repository")
+
+        # Is the repo tracking the same thing that we are?
+        for remote in repo.remotes:
+            for url in git_url.urls.values():
+                if url in remote.urls:
+                    # Yes, so pull it.
+                    remote.pull()
+                    return
+
+        raise IOError("clone-path `{}`".format(clone_path) +
+                      "is a git repository distinct from the given url")
+
+
 def parse_args():
     """TODO: Docstring for parse_args.
     :returns: TODO
@@ -51,33 +81,6 @@ def parse_args():
 
     return clone_path
 
-
-def pull_repo(git_url, clone_path):
-    import git
-    try:
-        repo = git.Repo.clone_from(git_url.urls["https"], clone_path)
-    except git.exc.GitCommandError as e:
-        if e.status != 128:
-            raise e
-
-        # The directory already exists.
-        # Is it a git repository?
-        try:
-            repo = git.Repo(clone_path)
-        except git.InvalidGitRepositoryError:
-            raise IOError("clone-path `{}`".format(clone_path) +
-                       " is non-empty and not a git repository")
-
-        # Is the repo tracking the same thing that we are?
-        for remote in repo.remotes:
-            for url in git_url.urls.values():
-                if url in remote.urls:
-                    # Yes, so pull it.
-                    remote.pull()
-                    return
-
-        raise IOError("clone-path `{}`".format(clone_path) +
-                      "is a git repository distinct from the given url")
 
 
 def main():
