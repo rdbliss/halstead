@@ -86,7 +86,7 @@ def main():
     git_urls, join = parse_args()
 
     from .process import get_dir_halstead
-    from .output import plot_multiple_repository_function_pairs
+    from .output import plot_function_length_pairs
     import matplotlib.pyplot as plt
 
     # Clone the repos.
@@ -96,7 +96,7 @@ def main():
     repo_results = [(url.repo, get_dir_halstead(url.repo)) for url in git_urls]
 
     plt.style.use("ggplot")
-    plot_multiple_repository_function_pairs(repo_results, join)
+    plot_function_length_pairs(repo_results, join)
 
     plt.show()
 
