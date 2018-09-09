@@ -21,6 +21,7 @@ DESCRIPTION = "Analyze the Halstead complexity metrics of a git repository."
 REPO_HELP = "Valid path to git repo or user/project shorthand for GitHub repo."
 CLONE_PATH_HELP = "Directory for cloned repo."
 JOIN_HELP = "Merge plots for multiple repositories together."
+SAVE_HELP = "Save all plots."
 
 
 def pull_repo(git_url, clone_path):
@@ -65,6 +66,8 @@ def parse_args():
     parser.add_argument("repos", type=str, nargs="+", help=REPO_HELP)
     parser.add_argument("-j", "--join", dest="join", action="store_const",
                             const=True, default=False, help=JOIN_HELP)
+    parser.add_argument("-s", "--save", dest="save", action="store_const",
+                            const=True, default=False, help=SAVE_HELP)
 
     args = parser.parse_args()
 
@@ -79,11 +82,11 @@ def parse_args():
 
         git_urls.append(git_url)
 
-    return (git_urls, args.join)
+    return (git_urls, args)
 
 
 def main():
-    git_urls, join = parse_args()
+    git_urls, args = parse_args()
 
     from .process import get_dir_halstead
     from .output import plot_function_length_pairs
@@ -96,7 +99,7 @@ def main():
     repo_results = [(url.repo, get_dir_halstead(url.repo)) for url in git_urls]
 
     plt.style.use("ggplot")
-    plot_function_length_pairs(repo_results, join)
+    plot_function_length_pairs(repo_results, args.join, args.save)
 
     plt.show()
 

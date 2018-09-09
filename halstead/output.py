@@ -3,8 +3,17 @@ import halstead.process as process
 import matplotlib.pyplot as plt
 import brewer2mpl
 
+params = {'axes.labelsize': 8,
+          'legend.fontsize': 10,
+          'xtick.labelsize': 10,
+          'ytick.labelsize': 10,
+          'figure.figsize': [4.5, 4.5]
+          }
 
-def plot_function_length_pairs(repo_results, join=False):
+plt.rcParams.update(params)
+
+
+def plot_function_length_pairs(repo_results, join=False, save=False):
     """TODO: Docstring for multiple_repository_function_pairs.
 
     :repo_results: TODO
@@ -49,3 +58,15 @@ def plot_function_length_pairs(repo_results, join=False):
 
     for ax in axes:
         ax.legend()
+
+    print(save)
+    if save:
+        if join:
+            name = "_".join(name for (name, _) in repo_results)
+            figs[0].savefig(name + ".pdf")
+        else:
+            for fig, (name, result) in zip(figs, repo_results):
+                print("saving {}".format(name))
+                fig.savefig(name + ".pdf")
+
+    return figs, axes
