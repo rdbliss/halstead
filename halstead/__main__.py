@@ -40,7 +40,7 @@ def pull_repo(git_url, clone_path):
             raise IOError("clone-path `{}`".format(clone_path) +
                        " is non-empty and not a git repository")
 
-        # Is the repo tracking the same thing that we are?
+        # Yes; is it tracking the same thing that we are?
         for remote in repo.remotes:
             for url in git_url.urls.values():
                 if url in remote.urls:
@@ -61,36 +61,38 @@ def parse_args():
     import giturlparse
 
     parser = argparse.ArgumentParser(prog="halstead", description=DESCRIPTION)
-    parser.add_argument("repo", type=str, help=REPO_HELP)
-    parser.add_argument("clone_path", type=str, metavar="clone-path",
-                        nargs="?", help=CLONE_PATH_HELP)
+    parser.add_argument("repos", type=str, nargs="+", help=REPO_HELP)
 
     args = parser.parse_args()
 
-    git_url = giturlparse.parse(args.repo)
+    git_urls = []
 
-    if not git_url.valid:
-        raise ValueError("invalid git url")
+    for url in args.repos:
+        git_url = giturlparse.parse(url)
 
-    if args.clone_path:
-        clone_path = args.clone_path
-    else:
-        clone_path = git_url.repo
+        if not git_url.valid:
+            print("Ign: Invalid git url '{}'".format(url))
+            continue
 
-    pull_repo(git_url, clone_path)
+        git_urls.append(git_url)
 
-    return clone_path
-
+    return git_urls
 
 
 def main():
-    clone_path = parse_args()
+    git_urls = parse_args()
 
     from .process import get_dir_halstead
     from .output import plot_function_length_pairs
 
-    results = get_dir_halstead(clone_path)
-    plot_function_length_pairs(results)
+    # Clone the repos.
+    for git_url in git_urls:
+        pull_repo(git_url, git_url.repo)
+
+    repo_results = [get_dir_halstead(url.repo) for url in git_urls]
+
+    for result in repo_results:
+        plot_function_length_pairs(result)
 
 
 if __name__ == "__main__":
