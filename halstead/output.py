@@ -1,7 +1,6 @@
+from .stats import line_of_best_fit
 import halstead.process as process
 import matplotlib.pyplot as plt
-import numpy as np
-import scipy.stats
 import brewer2mpl
 
 
@@ -26,8 +25,8 @@ def plot_function_length_pairs(repo_results, join=False):
         axis.set_ylabel("Expected program length")
 
     def plot_lines(ns, n_hats, axis, name, color=None):
-        slope, intercept, r_value, _, _ = scipy.stats.linregress(ns, n_hats)
-        line = np.poly1d([slope, intercept])
+        line, residuals = line_of_best_fit(ns, n_hats)
+
         s = " ({})".format(name) if name else ""
         if color:
             axis.plot(ns, line(ns), color=color)
