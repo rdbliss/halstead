@@ -22,8 +22,8 @@ def plot_function_length_pairs(repo_results, join=False):
         else:
             axis.scatter(ns, n_hats, alpha=0.90, label=name)
 
-        axis.set_xlabel("Program length (distinct operators + distinct operands)")
-        axis.set_ylabel("Calculated program length")
+        axis.set_xlabel("Program length")
+        axis.set_ylabel("Expected program length")
 
     def plot_lines(ns, n_hats, axis, name, color=None):
         slope, intercept, r_value, _, _ = scipy.stats.linregress(ns, n_hats)
@@ -37,6 +37,7 @@ def plot_function_length_pairs(repo_results, join=False):
     if join:
         fig = plt.figure()
         ax = fig.gca()
+        ax.set_title("Halstead Metrics: Expected Length")
 
         for k, (name, result) in enumerate(repo_results):
             ns, n_hats = process.get_function_length_pairs(result)
@@ -49,6 +50,8 @@ def plot_function_length_pairs(repo_results, join=False):
         for k, (name, result) in enumerate(repo_results):
             fig = plt.figure()
             ax = fig.gca()
+
+            ax.set_title("Halstead Metrics: Expected Length")
 
             ns, n_hats = process.get_function_length_pairs(result)
             plot_scatters(ns, n_hats, ax, name, color=colors[k % len(colors)])
