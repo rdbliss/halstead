@@ -1,5 +1,8 @@
 from .process import get_dir_halstead
 from .output import plot_function_length_pairs
+DESCRIPTION = "Analyze the Halstead complexity metrics of a git repository."
+REPO_HELP = "Valid path to git repo or user/project shorthand for GitHub repo."
+CLONE_PATH_HELP = "Directory for cloned repo."
 
 
 def parse_args():
@@ -11,9 +14,10 @@ def parse_args():
     import giturlparse
     import git
 
-    parser = argparse.ArgumentParser(prog="halstead", description="Analyze the Halstead complexity metrics of a git repository.")
-    parser.add_argument("repo", type=str, help="Valid path to git repo or user/project shorthand for GitHub repo")
-    parser.add_argument("clone_path", type=str, nargs="?", help="Valid path to git repo or user/project shorthand for GitHub repo")
+    parser = argparse.ArgumentParser(prog="halstead", description=DESCRIPTION)
+    parser.add_argument("repo", type=str, help=REPO_HELP)
+    parser.add_argument("clone_path", type=str, metavar="clone-path",
+                        nargs="?", help=CLONE_PATH_HELP)
 
     args = parser.parse_args()
 
@@ -27,19 +31,17 @@ def parse_args():
     else:
         clone_path = git_url.repo
 
-    try:
-        repo = git.Repo.clone_from(git_url.urls["https"], clone_path)
-    except git.exc.GitCommandError as e:
-        if e.status == 128:
-            raise IOError("clone path `{}` is non-empty".format(clone_path))
-
-        raise e
+    pull_repo(git_url, clone_path)
 
     return clone_path
 
 
 def main():
     clone_path = parse_args()
+
+    from .process import get_dir_halstead
+    from .output import plot_function_length_pairs
+
     results = get_dir_halstead(clone_path)
     plot_function_length_pairs(results)
 
