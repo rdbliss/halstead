@@ -52,4 +52,17 @@ def get_dir_halstead(path):
     with mp.Pool() as pool:
         results = pool.map(pickle_func, names)
 
-    return fix_pool_results(results)
+    fixed = fix_pool_results(results)
+
+    # Remove all files that have zero length.
+    pos_length = [hal for hal in fixed if hal.total.length > 0]
+    compl = [hal for hal in fixed if hal.total.length == 0]
+    pos_func = []
+
+    # Remove all functions that have zero length.
+    for hal in pos_length:
+        funcs = [(name, func) for name, func in hal.functions if func.length > 0]
+        if funcs:
+            pos_func.append(Halstead(total=hal.total, functions=funcs))
+
+    return pos_func
