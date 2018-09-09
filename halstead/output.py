@@ -2,6 +2,7 @@ import halstead.process as process
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats
+import brewer2mpl
 
 
 def plot_function_length_pairs(repo_results, join=False):
@@ -11,6 +12,9 @@ def plot_function_length_pairs(repo_results, join=False):
     :returns: TODO
 
     """
+
+    bmap = brewer2mpl.get_map('Dark2', 'qualitative', len(repo_results))
+    colors = bmap.mpl_colors
 
     def plot_scatters(ns, n_hats, axis, name, color=None):
         if color:
@@ -34,19 +38,19 @@ def plot_function_length_pairs(repo_results, join=False):
         fig = plt.figure()
         ax = fig.gca()
 
-        for name, result in repo_results:
+        for k, (name, result) in enumerate(repo_results):
             ns, n_hats = process.get_function_length_pairs(result)
-            plot_scatters(ns, n_hats, ax, name)
-            plot_lines(ns, n_hats, ax, name)
+            plot_scatters(ns, n_hats, ax, name, color=colors[k % len(colors)])
+            plot_lines(ns, n_hats, ax, name, color=colors[k % len(colors)])
 
         ax.legend()
 
     else:
-        for name, result in repo_results:
+        for k, (name, result) in enumerate(repo_results):
             fig = plt.figure()
             ax = fig.gca()
 
             ns, n_hats = process.get_function_length_pairs(result)
-            plot_scatters(ns, n_hats, ax, name)
-            plot_lines(ns, n_hats, ax, name)
+            plot_scatters(ns, n_hats, ax, name, color=colors[k % len(colors)])
+            plot_lines(ns, n_hats, ax, name, color=colors[k % len(colors)])
             ax.legend()

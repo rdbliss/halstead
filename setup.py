@@ -17,7 +17,7 @@ VERSION = "0.1"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'GitPython', 'matplotlib', 'scipy', 'numpy', 'radon'
+    'GitPython', 'matplotlib', 'scipy', 'numpy', 'radon', 'brewer2mpl'
 ]
 
 # What packages are optional?
