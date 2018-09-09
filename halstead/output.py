@@ -15,14 +15,11 @@ def plot_function_length_pairs(repo_results, join=False):
     bmap = brewer2mpl.get_map('Dark2', 'qualitative', len(repo_results))
     colors = bmap.mpl_colors
 
-    def plot_scatters(ns, n_hats, axis, name, color=None):
+    def plot_scatters(ns, n_hats, axis, name, color):
         if color:
             axis.scatter(ns, n_hats, alpha=0.90, label=name, color=color)
         else:
             axis.scatter(ns, n_hats, alpha=0.90, label=name)
-
-        axis.set_xlabel("Program length")
-        axis.set_ylabel("Expected program length")
 
     def plot_lines(ns, n_hats, axis, name, color=None):
         line, residuals = line_of_best_fit(ns, n_hats)
@@ -34,25 +31,21 @@ def plot_function_length_pairs(repo_results, join=False):
             axis.plot(ns, line(ns))
 
     if join:
-        fig = plt.figure()
-        ax = fig.gca()
-        ax.set_title("Halstead Metrics: Expected Length")
-
-        for k, (name, result) in enumerate(repo_results):
-            ns, n_hats = process.get_function_length_pairs(result)
-            plot_scatters(ns, n_hats, ax, name, color=colors[k % len(colors)])
-            plot_lines(ns, n_hats, ax, name, color=colors[k % len(colors)])
-
-        ax.legend()
-
+        figs = [plt.figure()]
     else:
-        for k, (name, result) in enumerate(repo_results):
-            fig = plt.figure()
-            ax = fig.gca()
+        figs = [plt.figure() for k in range(len(repo_results))]
 
-            ax.set_title("Halstead Metrics: Expected Length")
+    axes = [fig.gca() for fig in figs]
+    for ax in axes:
+        ax.set_title("Halstead Metrics: Expected Length")
+        ax.set_xlabel("Program length")
+        ax.set_ylabel("Expected program length")
 
-            ns, n_hats = process.get_function_length_pairs(result)
-            plot_scatters(ns, n_hats, ax, name, color=colors[k % len(colors)])
-            plot_lines(ns, n_hats, ax, name, color=colors[k % len(colors)])
-            ax.legend()
+    for k, (name, result) in enumerate(repo_results):
+        ax = axes[k % len(axes)]
+        ns, n_hats = process.get_function_length_pairs(result)
+        plot_scatters(ns, n_hats, ax, name, color=colors[k % len(colors)])
+        plot_lines(ns, n_hats, ax, name, color=colors[k % len(colors)])
+
+    for ax in axes:
+        ax.legend()
