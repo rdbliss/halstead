@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
-DESCRIPTION = "Analyze the Halstead complexity metrics of a git repository."
+DESCRIPTION = "Analyze the Halstead complexity metrics of a Python git repository."
 REPO_HELP = "Valid path to git repo or user/project shorthand for GitHub repo."
 CLONE_PATH_HELP = "Directory for cloned repo."
 JOIN_HELP = "Merge plots for multiple repositories together."
