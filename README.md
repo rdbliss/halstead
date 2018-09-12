@@ -6,4 +6,4 @@ metrics on them, and plots the Halstead estimated length against the actual
 length. For example, the command `halstead rg3/youtube-dl` produced the
 following graphic:
 
-![Example run with the youtube-dl package](./example.png)
+![Example run with the youtube-dl package](./youtube-dl.svg)
