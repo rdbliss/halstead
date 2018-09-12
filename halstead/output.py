@@ -59,7 +59,6 @@ def plot_function_length_pairs(repo_results, join=False, save=False):
     for ax in axes:
         ax.legend()
 
-    print(save)
     if save:
         if join:
             name = "_".join(name for (name, _) in repo_results)
