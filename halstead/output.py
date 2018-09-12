@@ -39,10 +39,12 @@ def plot_function_length_pairs(repo_results, join=False, save=False):
         else:
             axis.plot(ns, line(ns))
 
+    size = (12, 8)
+
     if join:
-        figs = [plt.figure()]
+        figs = [plt.figure(figsize=size)]
     else:
-        figs = [plt.figure() for k in range(len(repo_results))]
+        figs = [plt.figure(figsize=size) for k in range(len(repo_results))]
 
     axes = [fig.gca() for fig in figs]
     for ax in axes:
@@ -62,10 +64,10 @@ def plot_function_length_pairs(repo_results, join=False, save=False):
     if save:
         if join:
             name = "_".join(name for (name, _) in repo_results)
-            figs[0].savefig(name + ".pdf")
+            figs[0].savefig(name + ".svg")
         else:
             for fig, (name, result) in zip(figs, repo_results):
                 print("saving {}".format(name))
-                fig.savefig(name + ".pdf")
+                fig.savefig(name + ".svg")
 
     return figs, axes
