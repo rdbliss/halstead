@@ -21,7 +21,7 @@ def plot_function_length_pairs(repo_results, join=False, save=False):
 
     """
 
-    bmap = brewer2mpl.get_map('Dark2', 'qualitative', len(repo_results))
+    bmap = brewer2mpl.get_map('Dark2', 'qualitative', 7)
     colors = bmap.mpl_colors
 
     def plot_scatters(ns, n_hats, axis, name, color):
