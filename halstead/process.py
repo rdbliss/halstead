@@ -38,7 +38,12 @@ def get_function_length_pairs(results):
 def pickle_func(name):
     with open(name) as f:
         # Return a tuple because pickle is fucking stupid.
-        res = h_visit(f.read())
+        try:
+            res = h_visit(f.read())
+        except SyntaxError:
+            print("Ign: Invalid syntax in '{}'".format(name))
+            return None
+
         total = tuple(res.total)
         functions = [(name, tuple(report)) for (name, report) in res.functions]
 
@@ -50,7 +55,7 @@ def get_dir_halstead(path):
     names = glob(search_path, recursive=True)
 
     with mp.Pool() as pool:
-        results = pool.map(pickle_func, names)
+        results = [res for res in pool.map(pickle_func, names) if res]
 
     fixed = fix_pool_results(results)
 
